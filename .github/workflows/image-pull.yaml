@@ -1,0 +1,37 @@
+name: images-pull
+
+on:
+  workflow_call: { }
+  workflow_dispatch: { }
+  push:
+    branches:
+      - main # Run on any commit to main branch
+  schedule:
+    - cron: "0 0 * * *" # Run daily at 00:00 UTC
+
+permissions:
+  contents: read
+  id-token: write # This is needed for OIDC federation.
+
+jobs:
+  chainguard-images-github-action-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+        # Add support for more platforms with QEMU (optional)
+        # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Chainctl
+        uses: chainguard-dev/actions/setup-chainctl@main
+        with:
+          identity: a53ba195163e67003c4c1496aa8246067337a71c/18faa906ea0be953
+
+      - name: Run demo.sh
+        run: ./demo.sh
